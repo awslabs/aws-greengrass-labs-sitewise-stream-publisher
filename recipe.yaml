@@ -1,0 +1,33 @@
+---
+RecipeFormatVersion: "2020-01-25"
+ComponentName: "COMPONENT_NAME"
+ComponentVersion: "COMPONENT_VERSION"
+ComponentType: "aws.greengrass.generic"
+ComponentDescription: "Subscribe to a local mqtt topic, and publish incoming message values to AWS IoT SiteWise stream"
+ComponentPublisher: "COMPONENT_AUTHOR"
+ComponentConfiguration:
+  DefaultConfiguration:
+    StreamName: "SiteWise_Edge_Stream"
+    topicName: "local/swe_stream/publish"
+    accessControl:
+      aws.greengrass.ipc.pubsub:
+        aws.greengrass.labs.sitewise.stream.publisher:pubsub:1:
+          policyDescription: "Allows access to subscribe to topic local/swe_stream/publish."
+          operations:
+          - "aws.greengrass#SubscribeToTopic"
+          resources:
+          - "*"
+ComponentDependencies:
+  aws.greengrass.StreamManager:
+    VersionRequirement: ">=2.0.0 <3.0.0"
+    DependencyType: "HARD"
+Manifests:
+  - Platform:
+      os: linux
+    Artifacts:
+      - URI: "s3://BUCKET_NAME/COMPONENT_NAME/COMPONENT_VERSION/aws-greengrass-labs-sitewise-stream-publisher.zip"
+        Unarchive: ZIP
+    Lifecycle:
+      Run: "python3 -u {artifacts:decompressedPath}/aws-greengrass-labs-sitewise-stream-publisher/main.py\
+      \ {configuration:/topicName} {configuration:/StreamName}"
+      Install: "pip3 install awsiotsdk stream_manager"
